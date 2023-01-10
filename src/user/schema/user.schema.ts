@@ -9,16 +9,16 @@ export type UserDocument = User & Document;
 
 export class User {
     @Prop({ required: true })
-    name: String
+    name: string
 
     @Prop({ required: true })
-    email: String
+    email: string
 
     @Prop({ required: true })
-    password: String
+    password: string
 
     @Prop({
-        default: [Role.USER],
+        default: [Role.SUBSCRIBER],
         require: true
     })
     roles: Role[]

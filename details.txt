@@ -40,5 +40,11 @@
     }
 
   - delete User(DELETE)
-
     - localhost:3000/auth/delete/id
+
+- change password(Post)
+    - localhost:3000/auth/change-password
+    - params {
+    "oldPassword":"pwd",
+    "newPassword":"pwd1"
+    }
