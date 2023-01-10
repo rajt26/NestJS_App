@@ -1,0 +1,44 @@
+* User Details
+
+* User Role
+- User
+- ADMIN
+
+* Auth Routes
+
+- User Register (POST)
+    -localhost:3000/auth/create
+    params:
+    {
+        "name": "raj",
+        "email": "raj@gmail.com",
+        "password": "raj123"
+    }
+
+- User Login (POST)
+    -localhost:3000/auth/login
+    -params:
+    {
+        "username":"parth@gmail.com",
+        "password":"parth123"
+    }
+
+
+- Get All users (GET)
+    -localhost:3000/auth/all
+
+
+- Get Single User By Id (GET)
+    -localhost:3000/auth/id
+
+- Update User (PUT)
+    -localhost:3000/auh/update/id
+    - params {
+        - anything that you want to update(name,email)
+        name:""
+        email:""
+    }
+
+  - delete User(DELETE)
+
+    - localhost:3000/auth/delete/id

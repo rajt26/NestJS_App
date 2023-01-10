@@ -12,7 +12,7 @@ import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 export class AuthController {
     constructor(private userService: UserService, private authService: AuthService) { }
 
-    @Post('create')
+    @Post('/create')
     async registerUser(@Res() res, @Body() user: User) {
         const newUser = await this.userService.create(user);
         return res.status(HttpStatus.CREATED).json({
@@ -54,7 +54,7 @@ export class AuthController {
         })
     }
 
-    @Delete('/:id')
+    @Delete('/delete/:id')
     @Roles(Role.ADMIN)
     @UseGuards(JwtAuthGuard, RolesGuard)
     async delete(@Res() response, @Param('id') id) {
@@ -64,7 +64,7 @@ export class AuthController {
         })
     }
 
-    @Post('/auth/login')
+    @Post('/login')
     @UseGuards(LocalAuthGuard)
     async login(@Request() req) {
         return this.authService.login(req.user);
