@@ -1,5 +1,4 @@
 import { IsString, IsNotEmpty, IsEmail, IsArray, IsOptional, MinLength, MaxLength, Matches, IsMongoId } from 'class-validator';
-import mongoose, { isValidObjectId, ObjectId } from 'mongoose';
 import { Role } from 'src/auth/enums/role.enum';
 
 export class UserDto {
@@ -24,10 +23,26 @@ export class UserDto {
     roles: Role[];
 }
 
-export class UserParamsDto {
-    @IsNotEmpty()
-    @IsMongoId()
+export class UserFindDto {
+    @IsOptional()
     id: string;
+
+    @IsOptional()
+    @IsString()
+    name: string
+
+    @IsOptional()
+    @IsString()
+    password: string
+
+    @IsOptional()
+    @IsEmail()
+    @IsString()
+    email: string;
+
+    @IsOptional()
+    @IsArray()
+    roles: Role[];
 }
 
 export class UserLoginDto {
@@ -60,6 +75,17 @@ export class UserUpdateDto {
     @IsOptional()
     @IsArray()
     roles: Role[];
+}
+
+export class EditProfileDto {
+    @IsOptional()
+    @IsString()
+    name: string;
+
+    @IsOptional()
+    @IsEmail()
+    @IsString()
+    email: string;
 }
 
 export class changePasswordDto {

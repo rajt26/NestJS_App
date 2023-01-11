@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { UserDocument, User } from './schema/user.schema'
 import { PasswordHashService } from "./password-hash.service";
+import { UserFindDto } from "./dtos/user.dto";
 
 @Injectable()
 export class UserService {
@@ -26,7 +27,7 @@ export class UserService {
         return await this.userModel.findById(id).exec();
     }
 
-    async getUserByEmail(email: String): Promise<User> {
+    async getUserByEmail(email: String): Promise<UserFindDto> {
         return await this.userModel.findOne({ email });
     }
 
