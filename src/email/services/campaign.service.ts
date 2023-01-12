@@ -16,6 +16,6 @@ export class CampaignService {
     }
 
     async getAllCampaignsByUserId(userId: string): Promise<Campaign[]> {
-        return await this.campaignModel.find({ createdBy: userId }).select('name').sort({ createdAt: 'desc' }).exec()
+        return await this.campaignModel.find({ createdBy: userId }).select('name totalMailCount sentSuccessfully').sort({ createdAt: 'desc' }).exec()
     }
 }

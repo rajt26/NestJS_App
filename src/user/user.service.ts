@@ -4,12 +4,14 @@ import { Model } from "mongoose";
 import { UserDocument, User } from './schema/user.schema'
 import { PasswordHashService } from "./password-hash.service";
 import { UserFindDto } from "./dtos/user.dto";
+import { UnSubScribeUser, UnSubScribeUserDocument } from "./schema/unSubscibeUsers.schema";
 
 @Injectable()
 export class UserService {
 
     constructor(
         @InjectModel(User.name) private userModel: Model<UserDocument>,
+        @InjectModel(UnSubScribeUser.name) private UnSubScribeUserModel: Model<UnSubScribeUserDocument>,
         private passwordHashService: PasswordHashService
     ) { }
 
@@ -37,5 +39,87 @@ export class UserService {
 
     async delete(id): Promise<any> {
         return await this.userModel.findByIdAndRemove(id);
+    }
+
+    async searchFilterUsers(queryData: Record<string, any>): Promise<any> {
+        const searchValue = queryData.search;
+        const page = parseInt(queryData.page) || 1;
+        const limit = parseInt(queryData.limit) || 5;
+        const skip = page * limit - limit;
+
+        try {
+            const result = await this.userModel.find({
+                $or: [
+                    { 'name': { "$regex": searchValue, "$options": "i" } },
+                    { 'email': { "$regex": searchValue, "$options": "i" } },
+                    { 'roles': { "$regex": searchValue, "$options": "i" } }
+                ]
+            }).skip(skip).limit(limit);
+
+            const count = await this.userModel.find({
+                $or: [{ 'name': { "$regex": searchValue, "$options": "i" } },
+                { 'email': { "$regex": searchValue, "$options": "i" } },
+                { 'roles': { "$regex": searchValue, "$options": "i" } }]
+            }).countDocuments();
+
+            if (result.length == 0) {
+                return {
+                    success: false,
+                    result: [],
+                    count: 0,
+                    message: "No result"
+                }
+            }
+            return {
+                success: true,
+                result,
+                message: "Found",
+                count
+            }
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    async getAllUnSubscriber(queryData: Record<string, any>, email: string): Promise<any> {
+        const searchValue = queryData.search;
+        const page = parseInt(queryData.page) || 1;
+        const limit = parseInt(queryData.limit) || 5;
+        const skip = page * limit - limit;
+
+        try {
+            const result = await this.UnSubScribeUserModel.find({
+                $and: [{ 'unSubscribeFrom': email }, {
+                    $or: [{ 'unSubscriber': { "$regex": searchValue, "$options": "i" } },
+                    ]
+                }]
+            }).skip(skip).limit(limit).sort({ _id: -1 });
+
+            // * Get a the Total Count of The unSubscriber List
+            const count = await this.UnSubScribeUserModel.find({
+                $and: [{ 'unSubscribeFrom': email }, {
+                    $or: [{ 'unSubscriber': { "$regex": searchValue, "$options": "i" } },
+                    ]
+                }]
+            }).countDocuments();
+
+            if (count == 0) {
+                // !No unSubscriber found
+                return {
+                    success: false,
+                    message: "No Unsubscriber Found",
+                    result,
+                    count
+                }
+            }
+            return {
+                success: true,
+                message: "Unsubscriber data fetch successfully",
+                result,
+                count
+            }
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 }

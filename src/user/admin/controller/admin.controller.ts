@@ -5,6 +5,7 @@ import { Role } from "src/auth/enums/role.enum";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { RolesGuard } from "src/auth/guards/role.guard";
 import { CampaignService } from "src/email/services/campaign.service";
+import { EmailService } from "src/email/services/email.service";
 import { PasswordHashService } from "src/user/password-hash.service";
 import { changePasswordDto, UserUpdateDto } from "../../dtos/user.dto";
 import { UserService } from "../../user.service";
@@ -15,7 +16,10 @@ import { UserService } from "../../user.service";
 @UsePipes(new ValidationPipe())
 export class AdminController {
 
-    constructor(private userService: UserService, private passwordHashService: PasswordHashService, private campaignService: CampaignService) { }
+    constructor(private userService: UserService,
+        private passwordHashService: PasswordHashService,
+        private campaignService: CampaignService,
+        private emailService: EmailService) { }
 
     @Get('/all')
     async fetchAll(@Res() res) {
@@ -55,7 +59,6 @@ export class AdminController {
 
     }
 
-    @Get()
     async findByEmail(@Res() res, @Body() userEmail: string) {
         const user = await this.userService.getUserByEmail(userEmail);
         return res.status(HttpStatus.OK).json({
@@ -158,6 +161,46 @@ export class AdminController {
                 success: false,
                 result: [],
                 message: error.message,
+            })
+        }
+    }
+
+    @Get('/emails/all')
+    async getAllEmails(@Req() req, @Res() res, @Query() queryParams) {
+        try {
+            const emails = await this.emailService.getEmails(queryParams, req.user.userId)
+            return res.status(HttpStatus.OK).json({
+                success: emails.success,
+                result: emails.result,
+                count: emails.count,
+                message: emails.message
+            })
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json({
+                success: false,
+                result: [],
+                count: 0,
+                message: error.message
+            })
+        }
+    }
+
+    @Get('/users/search-users')
+    async search(@Res() res, @Query() queryParams) {
+        try {
+            const getSearchData = await this.userService.searchFilterUsers(queryParams);
+            return res.status(HttpStatus.OK).json({
+                success: getSearchData.success,
+                result: getSearchData.result,
+                count: getSearchData.count,
+                message: getSearchData.message
+            })
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json({
+                success: false,
+                result: [],
+                count: 0,
+                message: error.message
             })
         }
     }
