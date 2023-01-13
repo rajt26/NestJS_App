@@ -1,8 +1,5 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Res, Query } from "@nestjs/common";
-import { Mongoose } from "mongoose";
+import { Body, Controller, HttpStatus, Post, Res } from "@nestjs/common";
 import { UserService } from "src/user/user.service";
-import { CampaignDto } from "../dtos/campaign/campaign.dto";
-import { Campaign } from "../schemas/campaign.schema";
 import { CampaignService } from "../services/campaign.service";
 
 

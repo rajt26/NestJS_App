@@ -7,10 +7,11 @@ import { EmailService } from './services/email.service';
 import { CampaignSchema } from './schemas/campaign.schema';
 import { EmailSchema } from './schemas/email.schema';
 import { CampaignController } from './controllers/campaign.controller';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
 
-    imports: [forwardRef(() => UserModule), MongooseModule.forFeature([{ name: 'Campaign', schema: CampaignSchema }, { name: 'Email', schema: EmailSchema }])],
+    imports: [forwardRef(() => UserModule), CommonModule, MongooseModule.forFeature([{ name: 'Campaign', schema: CampaignSchema }, { name: 'Email', schema: EmailSchema }])],
     controllers: [EmailController, CampaignController],
     providers: [EmailService, CampaignService],
     exports: [EmailService, CampaignService]

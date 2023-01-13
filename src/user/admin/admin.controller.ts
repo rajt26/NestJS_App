@@ -7,8 +7,9 @@ import { RolesGuard } from "src/auth/guards/role.guard";
 import { CampaignService } from "src/email/services/campaign.service";
 import { EmailService } from "src/email/services/email.service";
 import { PasswordHashService } from "src/user/password-hash.service";
-import { changePasswordDto, UserUpdateDto } from "../../dtos/user.dto";
-import { UserService } from "../../user.service";
+import { changePasswordDto, UserUpdateDto } from "../dtos/user.dto";
+import { UserService } from "../user.service";
+import { AdminService } from "./admin.service";
 
 @Controller('admin')
 @Roles(Role.ADMIN)
@@ -19,7 +20,8 @@ export class AdminController {
     constructor(private userService: UserService,
         private passwordHashService: PasswordHashService,
         private campaignService: CampaignService,
-        private emailService: EmailService) { }
+        private emailService: EmailService,
+        private adminService: AdminService) { }
 
     @Get('/all')
     async fetchAll(@Res() res) {
@@ -200,6 +202,38 @@ export class AdminController {
                 success: false,
                 result: [],
                 count: 0,
+                message: error.message
+            })
+        }
+    }
+
+    @Get('/dashboard')
+    async adminDashBoardData(@Res() res) {
+        try {
+            // * service to get Total number of Users from DB.
+            const userCount = await this.adminService.getUserCount();
+
+            // *service to get Total Number of Emails Sent from DB.
+            const emailCount = await this.adminService.getEmailCount();
+
+            // *service to get Total Number of Emails Tracked from DB.
+            const trackedEmailCount = await this.adminService.getTrackEmailsCount();
+
+            // *service to get Total Number of Emails Sent in a Week from DB.
+            const weeklyCount = await this.adminService.getWeeklyEmailCount();
+            return res.status(200).json({
+                success: true,
+                result: {
+                    userCount,
+                    emailCount,
+                    trackedEmailCount,
+                    weeklyCount
+                },
+                message: "Successfully fetched dashboard data"
+            });
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json({
+                success: false,
                 message: error.message
             })
         }

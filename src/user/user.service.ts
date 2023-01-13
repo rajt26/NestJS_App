@@ -122,4 +122,36 @@ export class UserService {
             throw new Error(error.message);
         }
     }
+
+    async saveUnsubscribeUser(unSubscribeUser: Record<string, any>): Promise<UnSubScribeUser> {
+        const newUnSubscriber = await new this.UnSubScribeUserModel(unSubscribeUser);
+        return newUnSubscriber.save();
+    }
+
+    async getUnsubscribeUser(unSubscribeUser: Record<string, any>): Promise<UnSubScribeUser> {
+        return await this.UnSubScribeUserModel.findOne({
+            $and: [{ unSubscriber: unSubscribeUser.email }, { unSubscribeFrom: unSubscribeUser.id }],
+        })
+    }
+
+    async getUnsubscribeUsers(queryData: Record<string, any>): Promise<any> {
+        let userExist = await this.getUserByEmail(queryData.email);
+        let result = await this.UnSubScribeUserModel.find({
+            unSubscribeFrom: userExist.id,
+        }).select("unSubscriber");
+
+        if (!result.length) {
+            return {
+                success: false,
+                result: [],
+                message: "No result"
+            }
+        }
+        return {
+            success: true,
+            result: result,
+            message: "Unsubscribe User data fetched successfully"
+        };
+
+    }
 }

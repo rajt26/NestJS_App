@@ -1,11 +1,13 @@
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model } from "mongoose";
 import { Email, EmailDocument } from "../schemas/email.schema";
+import { EmailConfigService } from '../../common/email/emailConfig.service'
 
 export class EmailService {
 
     constructor(
-        @InjectModel(Email.name) private emailModel: Model<EmailDocument>
+        @InjectModel(Email.name) private emailModel: Model<EmailDocument>,
+        private emailConfigService: EmailConfigService
     ) { }
 
     async getEmails(queryData: Record<string, any>, userId: string): Promise<any> {
@@ -75,6 +77,64 @@ export class EmailService {
         }
     }
 
+    async sendEmail(emailData: Record<string, any>): Promise<Email> {
+        const { from, password, host, to, port, subject, textBody: text, attachments } = emailData;
 
+        //*create transporter instance
+        const newTransporter = await this.emailConfigService.createTransporter({
+            from,
+            password,
+            host,
+            port,
+        });
 
+        try {
+            const info = new newTransporter.sendMail({
+                from,
+                to,
+                subject,
+                html: text,
+                attachments: attachments,
+            })
+            console.log(
+                "🚀 ~ file: mailMergePlugin.controller.js:26 ~ sendMail ~ info",
+                info
+            );
+            return info;
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+
+    async saveEmailData(emailData: Record<string, any>): Promise<Email> {
+        const newEmailData = new this.emailModel(emailData);
+        return newEmailData.save();
+    }
+
+    async updateEmailsData(emailData: Record<string, any>): Promise<any> {
+        return await this.emailModel.updateMany(
+            { $and: [{ sender: emailData.id }, { receiver: emailData.email }] },
+            { $set: { unSubscribe: true } }
+        )
+    }
+
+    async updateEmailTrackingDetails(trackingData: Record<string, any>): Promise<any> {
+        return await this.emailModel.findOneAndUpdate(
+            { trackingId: trackingData.id },
+            {
+                $set: {
+                    "trackingDetails.isOpen": true,
+                    "trackingDetails.timeOfOpen": new Date().toString(),
+                },
+                $push: {
+                    "trackingDetails.history": {
+                        browser: trackingData.ua.browser,
+                        ua: trackingData.ua,
+                        openAt: new Date().toDateString(),
+                    },
+                },
+            },
+            { new: true }
+        );
+    }
 }

@@ -18,4 +18,8 @@ export class CampaignService {
     async getAllCampaignsByUserId(userId: string): Promise<Campaign[]> {
         return await this.campaignModel.find({ createdBy: userId }).select('name totalMailCount sentSuccessfully').sort({ createdAt: 'desc' }).exec()
     }
+
+    async getCampaignById(id: string): Promise<Campaign> {
+        return await this.campaignModel.findById(id);
+    }
 }
